@@ -25,7 +25,7 @@ def detect_silences(pathSound, sensibility, start, end, frame = 20):
 
     silences = []
 
-    if(length_extracted_audio>frame):
+    if length_extracted_audio>frame:
         nb_of_frames = int(length_extracted_audio/frame)
         start_frame = start
         end_frame = start_frame + frame
@@ -86,8 +86,11 @@ def __detect_silence_in_frame(pathSound, start_frame, end_frame, sensibility, hi
 
 def get_f0_mean(pathSound, start_time, end_time):
     """
-    Method that extracts the f0 mean of a particular sound found at pathMP3 location without taking in count the 0 values. 
+    Method that extracts the f0 mean of a particular sound found at pathSound location without taking in account the 0 values. 
     :params pathSound: path to the sound to analyse
+    :params start_time: in seconds
+    :params end_time : in seconds
+    :returns: mean f0 in the given time
     """
     sound = parselmouth.Sound(pathSound)
     sound = sound.extract_part(from_time = start_time , to_time = end_time)
@@ -106,6 +109,8 @@ def get_f0_standard_deviation(pathSound, start_time, end_time):
     """
     Get the standard deviation around a mean
     :params pathSound: path to the sound to analyse
+    :params start_time: in seconds
+    :params end_time : in seconds
     :returns: standart deviation of the sound
     """
     sound = parselmouth.Sound(pathSound)
