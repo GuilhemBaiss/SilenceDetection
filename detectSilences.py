@@ -1,5 +1,4 @@
 import math
-from pydub import AudioSegment
 import sys
 import os
 import parselmouth
@@ -126,11 +125,11 @@ def get_f0_standard_deviation(pathSound, start_time, end_time):
 def getSoundFileLength(pathSound):
     """
     Function that returns the length of a sound file in seconds
-    :params pathMP3 : the path to the sound file
+    :params pathSound : the path to the sound file
     :returns: the length of sound file in seconds
     """
-    sound = AudioSegment.from_mp3(pathSound)
-    return len(sound) / 1000
+    sound = parselmouth.Sound(pathSound)
+    return sound.xmax - sound.xmin
 
 
 #-----------------------------------------------------------------------------------------------------------
