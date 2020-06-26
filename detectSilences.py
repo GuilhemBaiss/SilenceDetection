@@ -4,11 +4,11 @@ import os
 import parselmouth
 import pandas as pd
 
-def detect_silences(pathSound, sensibility, start, end, frame = 20):
+def detect_silences(pathSound, minimum_silence_duration, start, end, frame = 20):
     """
     Method that detects silences for long and short audio 
     :params pathSound: path to access to the audio 
-    :params sensibility: the length of the silence pauses to detect
+    :params minimum_silence_duration: the length of the silence pauses to detect
     :params start: parameter of where to start checking for silences in a given audio
     :params end : parameter of where to end checking for silences in a given audio
     :params frame : size of a frame that we check for silences
@@ -31,26 +31,26 @@ def detect_silences(pathSound, sensibility, start, end, frame = 20):
         end_frame = start_frame + frame
         for i in range(1, nb_of_frames):
             i+=1
-            silences += __detect_silence_in_frame(pathSound, start_frame, end_frame, sensibility, high_outliers_value, low_outliers_value)
+            silences += __detect_silence_in_frame(pathSound, start_frame, end_frame, minimum_silence_duration, high_outliers_value, low_outliers_value)
             start_frame +=frame
             end_frame +=frame
 
         if end_frame != end:
             #Last frame that is not equal to the frame length
-            silences+= __detect_silence_in_frame(pathSound, end_frame, end, sensibility, high_outliers_value, low_outliers_value)
+            silences+= __detect_silence_in_frame(pathSound, end_frame, end, minimum_silence_duration, high_outliers_value, low_outliers_value)
     else:
-        silences += __detect_silence_in_frame(pathSound, start, end, sensibility, high_outliers_value, low_outliers_value)
+        silences += __detect_silence_in_frame(pathSound, start, end, minimum_silence_duration, high_outliers_value, low_outliers_value)
 
     return silences
 
 
-def __detect_silence_in_frame(pathSound, start_frame, end_frame, sensibility, high_outliers_value, low_outliers_value):
+def __detect_silence_in_frame(pathSound, start_frame, end_frame, minimum_silence_duration, high_outliers_value, low_outliers_value):
     """
     Method that detects silences in a given frame using the fundamental frequency and removes outliers using mean and standart deviation
     :params pathSound: path to access to the audio 
     :params start_frame: parameter of where to start checking for silences in a given audio
     :params end_frame : parameter of where to end checking for silences in a given audio
-    :params sensibility: the length of the silence pauses to detect
+    :params minimum_silence_duration: the length of the silence pauses to detect
     :params high_outliers_value: values higher than this parameter are considered as outliers
     :params low_outliers_value: values lower than this parameter are considered as outliers
     :returns: an array containing dictionnaries describing the start time, the end time and the duration of a silent pause
@@ -77,7 +77,7 @@ def __detect_silence_in_frame(pathSound, start_frame, end_frame, sensibility, hi
                 if pauseState == True :
                     end_time_silence = pitch.xs()[index]
                     duration = end_time_silence - start_time_silence
-                    if duration > sensibility:
+                    if duration > minimum_silence_duration:
                         silences.append({'start_time': start_frame + start_time_silence, 'end_time': start_frame + end_time_silence, 'duration': duration}) 
                         
                 pauseState = False
