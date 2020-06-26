@@ -10,6 +10,8 @@ Algorithm that detects silences in a dialogue from a given audio in Python. It c
 - From a terminal, go directly to where the detectSilences.py file is located.
 - type : python detectSilences.py the_path_to_the_audios_to_analyse [the_minimum_duration_of_a_silence_to_detect_in_seconds]
 
+PS : if you have spaces in your path you should write it surrounded by quotation marks. 
+
 ## What are the arguments given ?
 - the_path_to_the_audios_to_analyse :  path to where are located the audios 
 - the_minimum_duration_of_a_silence_to_detect_in_seconds : it is optional. If the value is not given as an argument, 0.1 seconds will be used in the algorithm.
