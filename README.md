@@ -1,8 +1,11 @@
-# Silent Detection in a Dialogue Algorithm
+# Silence Detection in a Dialogue Algorithm
 
 ## Description
-Algorithm that detects silences in a dialogue from a given audio. It creates a .csv document containing every silent pauses detected.
+Algorithm that detects silences in a dialogue from a given audio in Python. It creates a .csv document containing every silent pauses detected.
 
+## The librairies to install on the computer or in an environment
+- pip install parselmouth
+- pip install pandas
 ## How to use ?
 - From a terminal, go directly to where the detectSilences.py file is located.
 - type : python detectSilences.py the_path_to_the_audios_to_analyse [the_minimum_duration_of_a_silence_to_detect_in_seconds]
