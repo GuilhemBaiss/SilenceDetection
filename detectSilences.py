@@ -74,8 +74,9 @@ def __detect_silence_in_frame(pathSound, start_frame, end_frame, minimum_silence
             if pauseState == False:
                 start_time_silence = pitch.xs()[index]
                 pauseState = True
-            else:
-                pass
+            #Check if there is silence at the end of the audio
+            elif pauseState == True and pitch.xs()[index] == pitch.xs()[-1] and values == 0:
+                silences.append({'start_time': start_frame + start_time_silence, 'end_time': pitch.xs()[-1], 'duration': start_frame + pitch.xs()[-1] - start_time_silence })
         else:
             if values < high_outliers_value and values > low_outliers_value :
                 if pauseState == True :
