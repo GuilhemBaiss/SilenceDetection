@@ -1,7 +1,7 @@
 # Silence Detection in a Dialogue Algorithm
 
 ## Description
-Algorithm that detects silences in a dialogue from a given audio in Python. It creates a .csv document containing every silent pauses detected.
+Algorithm that detects silences in a dialogue from a given audio in Python. It creates a .csv document containing every silent pauses detected. It is usable for all Operating Systems.
 
 ## The librairies to install on the computer or in an environment
 - pip install praat-parselmouth 
