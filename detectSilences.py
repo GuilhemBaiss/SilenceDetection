@@ -1,3 +1,7 @@
+#@Author : Guilhem Baissus
+#Algorithm written during an internship at Laboratoire d'ingénierie Cognitive Sémantique located in Montreal, Quebec
+#My internship was supervised by Sylvie Ratté
+
 import math
 import sys
 import os
@@ -6,12 +10,12 @@ import pandas as pd
 
 def detect_silences(pathSound, minimum_silence_duration, start, end, frame = 20):
     """
-    Method that detects silences for long and short audio 
+    Method that detects silences for long and short audios by cutting it in frame of 20 seconds 
     :params pathSound: path to access to the audio 
     :params minimum_silence_duration: the length of the silence pauses to detect
     :params start: parameter of where to start checking for silences in a given audio
     :params end : parameter of where to end checking for silences in a given audio
-    :params frame : size of a frame that we check for silences
+    :params frame : size of a frame that we check for silences (the frame size influences the accuracy of results returned by parselmouth)
     :returns: an array containing dictionnaries describing the start time, the end time and the duration of a silent pause
     """
     sound = parselmouth.Sound(pathSound)
@@ -47,7 +51,7 @@ def detect_silences(pathSound, minimum_silence_duration, start, end, frame = 20)
 
 def __detect_silence_in_frame(pathSound, start_frame, end_frame, minimum_silence_duration, high_outliers_value, low_outliers_value):
     """
-    Method that detects silences in a given frame using the fundamental frequency and removes outliers using mean and standart deviation
+    Method that detects silences in a given frame using the fundamental frequency and removes outliers
     :params pathSound: path to access to the audio 
     :params start_frame: parameter of where to start checking for silences in a given audio
     :params end_frame : parameter of where to end checking for silences in a given audio
@@ -130,7 +134,7 @@ def get_f0_standard_deviation(pathSound, start_time, end_time):
 
 def getSoundFileLength(pathSound):
     """
-    Function that returns the length of a sound file in seconds
+    Method that returns the length of a sound file in seconds
     :params pathSound : the path to the sound file
     :returns: the length of sound file in seconds
     """
@@ -138,6 +142,12 @@ def getSoundFileLength(pathSound):
     return sound.xmax - sound.xmin
 
 def check_os(path, audios_names):
+    """
+    Method that returns the path to a precise audio file depending of the user's operating system
+    params path : path to the folder containing the sound files
+    params audios_name : name of the sound file that the algorithm is going to analyse
+    returns : path to the specific audio file. 
+    """
     if "/" in path and "\\" is not True:
         path_sound_file = PATH_SOUND_FILES + "/" + audios_names
     else:
@@ -181,7 +191,7 @@ for audios_names in audio_files_list:
 
         path_sound_file = check_os(PATH_SOUND_FILES, audios_names)
         silences = detect_silences(path_sound_file, MINIMUM_SILENCE_DURATION, 0, getSoundFileLength(path_sound_file))
-        
+
         for values in silences:
             data['name_file'].append(audios_names[:-4])
             data['start_time'].append(values['start_time'])
