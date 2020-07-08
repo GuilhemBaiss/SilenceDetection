@@ -25,19 +25,20 @@ def detect_silences(pathSound, minimum_silence_duration, start, end, frame = 20)
 
     silences = []
 
-    if length_extracted_audio>frame:
+    if(length_extracted_audio>frame):
         nb_of_frames = int(length_extracted_audio/frame)
         start_frame = start
         end_frame = start_frame + frame
-        for i in range(1, nb_of_frames):
-            i+=1
-            silences += __detect_silence_in_frame(pathSound, start_frame, end_frame, minimum_silence_duration, high_outliers_value, low_outliers_value)
+        for i in range(1, nb_of_frames+1):
+            silences += __detect_silence_in_frame(pathSound, start_frame, end_frame, minimum_silence_duration, high_outliers_value,low_outliers_value )
             start_frame +=frame
             end_frame +=frame
 
-        if end_frame != end:
+        last_end_frame = end_frame - frame
+        if last_end_frame < end and end - last_end_frame > 1:
+            print(last_end_frame, end)
             #Last frame that is not equal to the frame length
-            silences+= __detect_silence_in_frame(pathSound, end_frame, end, minimum_silence_duration, high_outliers_value, low_outliers_value)
+            silences+= __detect_silence_in_frame(pathSound, last_end_frame, end, minimum_silence_duration, high_outliers_value, low_outliers_value)
     else:
         silences += __detect_silence_in_frame(pathSound, start, end, minimum_silence_duration, high_outliers_value, low_outliers_value)
 
@@ -155,33 +156,39 @@ elif len(sys.argv) > 3:
     sys.exit()
     
 elif len(sys.argv) == 2:
-    MINIMUM_SILENCE_DURATION = 1
+    MINIMUM_SILENCE_DURATION = 0.5
     PATH_SOUND_FILES = sys.argv[1]
 
 else:
     PATH_SOUND_FILES =sys.argv[1]
     MINIMUM_SILENCE_DURATION = sys.argv[2]
 
-data = {
-    'name_file' : [],
-    'start_time' : [],
-    'end_time' : [],
-    'duration' : []
-}
+
+df = pd.DataFrame()
 
 audio_files_list = os.listdir(PATH_SOUND_FILES)
 
 for audios_names in audio_files_list:
     if audios_names[-3:] == "mp3" or audios_names[-3:] == "wav":
+        print("Extracting silences for : {}".format(audios_names))
+
+        data = {
+            'name_file' : [],
+            'start_time' : [],
+            'end_time' : [],
+            'duration' : []
+        }
+
         path_sound_file = check_os(PATH_SOUND_FILES, audios_names)
         silences = detect_silences(path_sound_file, MINIMUM_SILENCE_DURATION, 0, getSoundFileLength(path_sound_file))
+        
         for values in silences:
             data['name_file'].append(audios_names[:-4])
             data['start_time'].append(values['start_time'])
             data['end_time'].append(values['end_time'])
             data['duration'].append(values['duration'])
 
-df = pd.DataFrame()
-df = pd.DataFrame(data,columns=list(data.keys()))
-df.to_csv("silences.csv", index = False)
+        df = pd.DataFrame(data,columns=list(data.keys()))
+        df.to_csv(audios_names+"-silences.csv", index = False)
+
 
