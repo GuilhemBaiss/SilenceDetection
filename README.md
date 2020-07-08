@@ -4,7 +4,7 @@
 Algorithm that detects silences in a dialogue from a given audio in Python. It creates a .csv document containing every silent pauses detected.
 
 ## The librairies to install on the computer or in an environment
-- pip install parselmouth
+- pip install praat-parselmouth 
 - pip install pandas
 ## How to use ?
 - From a terminal, go directly to where the detectSilences.py file is located.
@@ -24,7 +24,8 @@ Name of File , Start of the silence in seconds, End of the silence in seconds, D
 ## How does this algorithm work?
 The algorithm uses the parselmouth library to access to the fundamental frequencies of the audio. In fact, a fundamental frequency of zero will represent a silent. The algorithm removes outliers that could be created by ambiant sounds.
 
-
+## ERRORS
+- " AttributeError: 'module' object has no attribute 'Sound'" means that you have installed the library parselmouth and not praat-parselmouth. To solve this issue, unistall parselmouth : pip unistall parselmouth and install praat-parselmouth : pip install praat-parselmouth
 
 
 
