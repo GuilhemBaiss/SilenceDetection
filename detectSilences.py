@@ -136,6 +136,13 @@ def getSoundFileLength(pathSound):
     sound = parselmouth.Sound(pathSound)
     return sound.xmax - sound.xmin
 
+def check_os(path, audios_names):
+    if "/" in path and "\\" is not True:
+        path_sound_file = PATH_SOUND_FILES + "/" + audios_names
+    else:
+        path_sound_file = PATH_SOUND_FILES + "\\" + audios_names
+    return path_sound_file
+
 
 #-----------------------------------------------------------------------------------------------------------
 
@@ -148,7 +155,7 @@ elif len(sys.argv) > 3:
     sys.exit()
     
 elif len(sys.argv) == 2:
-    MINIMUM_SILENCE_DURATION = 0.1
+    MINIMUM_SILENCE_DURATION = 1
     PATH_SOUND_FILES = sys.argv[1]
 
 else:
@@ -166,7 +173,7 @@ audio_files_list = os.listdir(PATH_SOUND_FILES)
 
 for audios_names in audio_files_list:
     if audios_names[-3:] == "mp3" or audios_names[-3:] == "wav":
-        path_sound_file = PATH_SOUND_FILES + "\\" + audios_names
+        path_sound_file = check_os(PATH_SOUND_FILES, audios_names)
         silences = detect_silences(path_sound_file, MINIMUM_SILENCE_DURATION, 0, getSoundFileLength(path_sound_file))
         for values in silences:
             data['name_file'].append(audios_names[:-4])
@@ -177,3 +184,4 @@ for audios_names in audio_files_list:
 df = pd.DataFrame()
 df = pd.DataFrame(data,columns=list(data.keys()))
 df.to_csv("silences.csv", index = False)
+
