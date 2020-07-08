@@ -40,7 +40,6 @@ def detect_silences(pathSound, minimum_silence_duration, start, end, frame = 20)
 
         last_end_frame = end_frame - frame
         if last_end_frame < end and end - last_end_frame > 1:
-            print(last_end_frame, end)
             #Last frame that is not equal to the frame length
             silences+= __detect_silence_in_frame(pathSound, last_end_frame, end, minimum_silence_duration, high_outliers_value, low_outliers_value)
     else:
