@@ -1,5 +1,5 @@
 #@Author : Guilhem Baissus
-#Algorithm written during an internship at Laboratoire d'ingénierie Cognitive Sémantique located in Montreal, Quebec
+#Algorithm written during an internship at Laboratoire d'ingénierie Cognitive Sémantique (Lincs) located in Montreal, Quebec
 #My internship was supervised by Sylvie Ratté
 
 import math
@@ -18,14 +18,11 @@ def detect_silences(pathSound, minimum_silence_duration, start, end, frame = 20)
     :params frame : size of a frame that we check for silences (the frame size influences the accuracy of results returned by parselmouth)
     :returns: an array containing dictionnaries describing the start time, the end time and the duration of a silent pause
     """
-    sound = parselmouth.Sound(pathSound)
-    sound = sound.extract_part(from_time = start , to_time = end)
     length_extracted_audio = end - start
 
-    mean_entire_audio = get_f0_mean(pathSound, 0, getSoundFileLength(pathSound))
-    standard_deviation_entire_audio = get_f0_standard_deviation(sound, 0, getSoundFileLength(pathSound))
-    high_outliers_value = mean_entire_audio + 4 * standard_deviation_entire_audio
-    low_outliers_value = mean_entire_audio - 2 * standard_deviation_entire_audio
+    outliers = get_outliers(pathSound)
+    high_outliers_value = outliers[1]
+    low_outliers_value = outliers[0]
 
     silences = []
 
@@ -59,7 +56,7 @@ def __detect_silence_in_frame(pathSound, start_frame, end_frame, minimum_silence
     :params low_outliers_value: values lower than this parameter are considered as outliers
     :returns: an array containing dictionnaries describing the start time, the end time and the duration of a silent pause
     """
-    silences = []
+
     sound = parselmouth.Sound(pathSound)
     sound = sound.extract_part(from_time = start_frame , to_time = end_frame)
     pitch = sound.to_pitch()
@@ -75,8 +72,8 @@ def __detect_silence_in_frame(pathSound, start_frame, end_frame, minimum_silence
                 start_time_silence = pitch.xs()[index]
                 pauseState = True
             #Check if there is silence at the end of the audio
-            elif pauseState == True and pitch.xs()[index] == pitch.xs()[-1] and values == 0:
-                silences.append({'start_time': start_frame + start_time_silence, 'end_time': pitch.xs()[-1], 'duration': start_frame + pitch.xs()[-1] - start_time_silence })
+            elif pauseState == True and pitch.xs()[index] == pitch.xs()[-1] and (values > high_outliers_value or values < low_outliers_value):
+                silences.append({'start_time': start_frame + start_time_silence, 'end_time': start_frame + pitch.xs()[index], 'duration': pitch.xs()[index] - start_time_silence})
         else:
             if values < high_outliers_value and values > low_outliers_value :
                 if pauseState == True :
@@ -89,12 +86,14 @@ def __detect_silence_in_frame(pathSound, start_frame, end_frame, minimum_silence
     return silences
 
 
-def get_f0_mean(pathSound, start_time, end_time):
+def get_f0_mean(pathSound, start_time, end_time, voice_max_frequency, voice_min_frequency):
     """
     Method that extracts the f0 mean of a particular sound found at pathSound location without taking in account the 0 values. 
     :params pathSound: path to the sound to analyse
     :params start_time: in seconds
     :params end_time : in seconds
+    :params voice_max_frequency : maximum frequency of a human being (adult man or adult female)
+    :params voice_min_frequency : minimum frequency of a human being (adult man or adult female)
     :returns: mean f0 in the given time
     """
     sound = parselmouth.Sound(pathSound)
@@ -110,12 +109,14 @@ def get_f0_mean(pathSound, start_time, end_time):
 
     return pitch_mean/size
 
-def get_f0_standard_deviation(pathSound, start_time, end_time):
+def get_f0_standard_deviation(pathSound, start_time, end_time, voice_max_frequency, voice_min_frequency):
     """
     Get the standard deviation around a mean
     :params pathSound: path to the sound to analyse
     :params start_time: in seconds
     :params end_time : in seconds
+    :params voice_max_frequency : maximum frequency of a human being (adult man or adult female)
+    :params voice_min_frequency : minimum frequency of a human being (adult man or adult female)
     :returns: standart deviation of the sound
     """
     sound = parselmouth.Sound(pathSound)
@@ -124,7 +125,7 @@ def get_f0_standard_deviation(pathSound, start_time, end_time):
     pitch_values = pitch.selected_array['frequency']
 
     sum = 0
-    mean = get_f0_mean(pathSound,start_time, end_time )
+    mean = get_f0_mean(pathSound,start_time, end_time, voice_max_frequency, voice_min_frequency)
 
     for values in pitch_values:
         if values != 0:
@@ -132,6 +133,32 @@ def get_f0_standard_deviation(pathSound, start_time, end_time):
     
     return math.sqrt(sum / len(pitch_values))
 
+def get_outliers(pathSound, voice_max_frequency = 300, voice_min_frequency = 50):
+    """
+    Method that returns the borders to where to analyse the voice signal
+    :params pathSound : path to the audio file
+    :params voice_max_frequency : maximum frequency of a human being (adult man or adult female)
+    :params voice_min_frequency : minimum frequency of a human being (adult man or adult female)
+    """
+    outliers = []
+
+    length_audio = getSoundFileLength(pathSound)
+    mean_entire_audio = get_f0_mean(pathSound, 0, length_audio, voice_max_frequency, voice_min_frequency)
+    standard_deviation_entire_audio = get_f0_standard_deviation(pathSound, 0, length_audio, voice_max_frequency, voice_min_frequency)
+    
+    high_outliers_value = mean_entire_audio + 4*standard_deviation_entire_audio
+    if high_outliers_value > voice_max_frequency:
+        high_outliers_value = voice_max_frequency
+
+    low_outliers_value = mean_entire_audio - 2*standard_deviation_entire_audio
+    if low_outliers_value < voice_min_frequency:
+        low_outliers_value = voice_min_frequency
+
+    outliers.append(low_outliers_value)
+    outliers.append(high_outliers_value)
+
+    return outliers
+    
 def getSoundFileLength(pathSound):
     """
     Method that returns the length of a sound file in seconds
