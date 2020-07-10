@@ -57,6 +57,8 @@ def __detect_silence_in_frame(pathSound, start_frame, end_frame, minimum_silence
     :returns: an array containing dictionnaries describing the start time, the end time and the duration of a silent pause
     """
 
+    silences = []
+
     sound = parselmouth.Sound(pathSound)
     sound = sound.extract_part(from_time = start_frame , to_time = end_frame)
     pitch = sound.to_pitch()
@@ -66,6 +68,7 @@ def __detect_silence_in_frame(pathSound, start_frame, end_frame, minimum_silence
     end_time_silence = -1
     duration = -1
     pauseState = False
+    
     for index, values in enumerate(pitch_values):
         if values==0:
             if pauseState == False:
