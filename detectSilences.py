@@ -171,20 +171,6 @@ def getSoundFileLength(pathSound):
     sound = parselmouth.Sound(pathSound)
     return sound.xmax - sound.xmin
 
-def check_os(path, audios_names):
-    """
-    Method that returns the path to a precise audio file depending of the user's operating system
-    params path : path to the folder containing the sound files
-    params audios_name : name of the sound file that the algorithm is going to analyse
-    returns : path to the specific audio file. 
-    """
-    if "/" in path and "\\" is not True:
-        path_sound_file = PATH_SOUND_FILES + "/" + audios_names
-    else:
-        path_sound_file = PATH_SOUND_FILES + "\\" + audios_names
-    return path_sound_file
-
-
 #-----------------------------------------------------------------------------------------------------------
 
 if len(sys.argv) ==1:
@@ -219,7 +205,7 @@ for audios_names in audio_files_list:
             'duration' : []
         }
 
-        path_sound_file = check_os(PATH_SOUND_FILES, audios_names)
+        path_sound_file = os.path.join(path_sound_file,audios_names)
         silences = detect_silences(path_sound_file, MINIMUM_SILENCE_DURATION, 0, getSoundFileLength(path_sound_file))
 
         for values in silences:
