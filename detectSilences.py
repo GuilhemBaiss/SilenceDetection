@@ -205,7 +205,7 @@ for audios_names in audio_files_list:
             'duration' : []
         }
 
-        path_sound_file = os.path.join(path_sound_file,audios_names)
+        path_sound_file = os.path.join(PATH_SOUND_FILES,audios_names)
         silences = detect_silences(path_sound_file, MINIMUM_SILENCE_DURATION, 0, getSoundFileLength(path_sound_file))
 
         for values in silences:
